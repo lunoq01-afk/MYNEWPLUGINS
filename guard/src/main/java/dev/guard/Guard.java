@@ -179,7 +179,8 @@ relog:
 
 anti-freecam:
   enabled: true
-  max-block-interaction-distance: 6.0 # repeated remote block actions are flagged; camera movement itself cannot be proven
+  max-block-interaction-distance: 6.0 # repeated remote block actions are flagged; camera-only movement cannot be observed
+
 
 entity-culling:
   enabled: true             # hides occluded player entities only; does not hide blocks/chunks or guarantee freecam prevention

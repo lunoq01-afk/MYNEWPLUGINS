@@ -48,6 +48,8 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerRiptideEvent;
@@ -150,13 +152,13 @@ public final class Guard extends JavaPlugin implements Listener {
 # =====================================================================
 
 detection:
-  ban-enabled: true         # false = only alert staff, never ban automatically
+  ban-enabled: false        # safer default: staff review only, no automatic bans
   ban-duration: 15d         # how long a detected cheat client is banned for
   keybind-check:
     enabled: true
     on-join: true           # runs a few seconds after joining (an anvil screen flashes for a moment)
     delay-seconds: 5
-    ban: true               # false = only alert staff (use this while you test with /sus scan)
+    ban: false              # staff review only; enable only after extensive testing
     # Keybind IDs of known hacked clients. A normal client shows the ID back unchanged,
     # a client with that mod installed shows the bound key instead. Keep each ID under 45 characters.
     keybinds:
@@ -175,8 +177,12 @@ relog:
   remember-minutes: 10      # a quick relog does not wipe a player's violation levels
   window-seconds: 30        # rejoining this soon after a combat log is flagged as a relog
 
+anti-freecam:
+  enabled: true
+  max-block-interaction-distance: 6.0 # repeated remote block actions are flagged; camera movement itself cannot be proven
+
 entity-culling:
-  enabled: true             # hides players behind walls from other players (anti-ESP, anti-radar, anti-freecam)
+  enabled: true             # hides occluded player entities only; does not hide blocks/chunks or guarantee freecam prevention
   min-distance: 16          # closer players are always shown
   max-distance: 80
   interval-ticks: 5         # how often each player's view is rechecked (lower = smoother, heavier)
@@ -426,6 +432,34 @@ entity-culling:
         }
     }
 
+    // ---------------- remote block-action / freecam heuristics ----------------
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockInteract(PlayerInteractEvent e) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
+        Player p = e.getPlayer();
+        if (p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE) return;
+        checkRemoteBlockAction(p, e.getClickedBlock(), "interact");
+    }
+
+    /**
+     * A freecam client can move its camera away from the server-side player, but it cannot
+     * legitimately interact with a block outside the server's reach. This is a heuristic:
+     * it flags repeated remote block actions, not camera movement itself.
+     */
+    private void checkRemoteBlockAction(Player p, Block block, String action) {
+        if (!getConfig().getBoolean("anti-freecam.enabled", true)
+                || p.hasPermission("anticheat.bypass") || lagging(p)) return;
+        double max = getConfig().getDouble("anti-freecam.max-block-interaction-distance", 6.0);
+        Location center = block.getLocation().add(0.5, 0.5, 0.5);
+        double distance = p.getEyeLocation().distance(center);
+        Data d = data(p);
+        if (suspicious(d, "freecam", distance > max, 2, 0.5)) {
+            flag(p, d, "Freecam", 1,
+                    String.format("remote block %s at %.2f blocks (limit %.2f)", action, distance, max), false);
+        }
+    }
+
     // ---------------- xray statistics (alert-only; real protection is Paper's anti-xray) ----------------
 
     private static final java.util.Set<Material> VALUABLE = java.util.EnumSet.of(
@@ -440,9 +474,12 @@ entity-culling:
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (p.getGameMode() != GameMode.SURVIVAL || p.hasPermission("anticheat.bypass")) return;
-        Data d = data(p);
+        if ((p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE)
+                || p.hasPermission("anticheat.bypass")) return;
         Block b = e.getBlock();
+        checkRemoteBlockAction(p, b, "break");
+        if (p.getGameMode() != GameMode.SURVIVAL) return;
+        Data d = data(p);
         Material m = b.getType();
 
         if (Tag.BASE_STONE_OVERWORLD.isTagged(m) || Tag.BASE_STONE_NETHER.isTagged(m)) {
@@ -1389,29 +1426,40 @@ entity-culling:
         xrayWorlds.clear();
         File defaults = new File(Bukkit.getWorldContainer(), "config/paper-world-defaults.yml");
         Boolean defEnabled = null;
+        Boolean defPermission = null;
         int defMode = 1;
         if (defaults.exists()) {
             YamlConfiguration y = YamlConfiguration.loadConfiguration(defaults);
             defEnabled = y.getBoolean("anticheat.anti-xray.enabled", false);
             defMode = y.getInt("anticheat.anti-xray.engine-mode", 1);
+            defPermission = y.getBoolean("anticheat.anti-xray.use-permission", false);
         }
         for (World w : Bukkit.getWorlds()) {
             Boolean enabled = defEnabled;
+            Boolean permission = defPermission;
             int mode = defMode;
             File wf = new File(w.getWorldFolder(), "paper-world.yml");
             if (wf.exists()) {
                 YamlConfiguration wy = YamlConfiguration.loadConfiguration(wf);
                 if (wy.isSet("anticheat.anti-xray.enabled")) enabled = wy.getBoolean("anticheat.anti-xray.enabled");
                 if (wy.isSet("anticheat.anti-xray.engine-mode")) mode = wy.getInt("anticheat.anti-xray.engine-mode");
+                if (wy.isSet("anticheat.anti-xray.use-permission")) permission = wy.getBoolean("anticheat.anti-xray.use-permission");
             }
             String status;
             if (enabled == null) status = "unknown (Paper config not found)";
-            else if (enabled) status = "ON (engine-mode " + mode + (mode == 2 ? ", hides ores and adds fake ones)" : ", hides ores)");
+            else if (enabled) status = "ON (engine-mode " + mode
+                    + (mode == 2 ? ", hides ores and adds fake ones" : ", hides ores")
+                    + "; admin bypass permission " + (Boolean.TRUE.equals(permission) ? "ON)" : "OFF)");
             else status = "OFF";
             xrayWorlds.put(w.getName(), status);
             if (Boolean.FALSE.equals(enabled)) {
                 getLogger().warning("Anti-xray is OFF in world '" + w.getName() + "'. Set anticheat.anti-xray.enabled: true "
                         + "and engine-mode: 2 in config/paper-world-defaults.yml, then restart.");
+            }
+            if (Boolean.TRUE.equals(enabled) && !Boolean.TRUE.equals(permission)) {
+                getLogger().warning("Anti-xray is enabled in world '" + w.getName()
+                        + "' but use-permission is OFF. Set anticheat.anti-xray.use-permission: true "
+                        + "to allow paper.antixray.bypass for admins only.");
             }
         }
     }
@@ -1438,10 +1486,10 @@ entity-culling:
         for (Map.Entry<String, String> e : xrayWorlds.entrySet()) {
             boolean on = e.getValue().startsWith("ON");
             say(s, "&8  - &f" + e.getKey() + "&7: " + (on ? "&a" : "&c") + e.getValue());
-            if (!on) anyOff = true;
+            if (!on || !e.getValue().contains("admin bypass permission ON")) anyOff = true;
         }
         if (anyOff) {
-            say(s, "&eFix: in config/paper-world-defaults.yml set anticheat.anti-xray.enabled: true and engine-mode: 2, then restart.");
+            say(s, "&eFix: in config/paper-world-defaults.yml set enabled: true, engine-mode: 2, and use-permission: true, then restart. Give paper.antixray.bypass only to trusted staff.");
         }
     }
 

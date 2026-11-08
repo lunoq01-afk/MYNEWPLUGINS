@@ -1,0 +1,74 @@
+name: Shop
+version: 0.1.0
+main: dev.shop.ShopPlugin
+api-version: '1.21'
+softdepend: [PlaceholderAPI]
+description: Basic survival economy - balance, auction house, buy orders, shard shop, keyall
+commands:
+  bal:
+    description: Show a balance
+    aliases: [balance, money]
+    usage: /bal [player]
+  pay:
+    description: Send money to a player
+    usage: /pay <player> <amount>
+  eco:
+    description: Admin economy control
+    usage: /eco <give|take|set> <player> <amount>
+    permission: shop.admin
+  shards:
+    description: Show shards (admins can give/take/set)
+    usage: /shards [give|take|set <player> <amount>]
+  baltop:
+    description: Richest players
+    aliases: [balancetop]
+  ah:
+    description: Auction house
+    aliases: [auctionhouse]
+    usage: /ah [sell <price>]
+  orders:
+    description: Buy orders
+    aliases: [order]
+    usage: /orders [create <item> <amount> <priceEach>]
+  shardshop:
+    description: Spend shards
+  keyall:
+    description: Give every online player a crate key
+    usage: /keyall <crate> [amount]
+    permission: shop.keyall
+  sb:
+    description: Toggle the sidebar scoreboard
+    aliases: [scoreboard]
+  crate:
+    description: Manage crates and keys
+    usage: /crate <give|set|remove|list|reload>
+    permission: shop.admin
+  keys:
+    description: Show your crate keys
+    usage: /keys
+  sell:
+    description: Open the sell menu
+    usage: /sell
+  stats:
+    description: Leaderboards
+    aliases: [leaderboard, lb]
+  bounty:
+    description: View bounties or place one
+    usage: /bounty [add <player> <amount>]
+  shop:
+    description: Open the shop menu
+    usage: /shop
+  points:
+    description: Show your points (admins can give/take/set)
+    aliases: [pts]
+    usage: /points [give|take|set <player> <amount>]
+  pointshop:
+    description: Open the Point Shop
+    aliases: [pshop]
+permissions:
+  shop.admin:
+    description: Manage balances and shards
+    default: op
+  shop.keyall:
+    description: Use /keyall
+    default: op

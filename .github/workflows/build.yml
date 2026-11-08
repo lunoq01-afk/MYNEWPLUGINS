@@ -1,0 +1,40 @@
+name: Build plugins
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build Guard (anticheat)
+        run: mvn -B -f guard/pom.xml package
+
+      - name: Build Shop
+        run: mvn -B -f shop/pom.xml package
+
+      - name: Build Core
+        run: mvn -B -f core/pom.xml package
+
+      - name: Collect jars
+        run: |
+          mkdir out
+          cp guard/target/guard-0.1.0.jar out/
+          cp shop/target/shop-0.1.0.jar out/
+          cp core/target/core-0.1.0.jar out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins
+          path: out/*.jar

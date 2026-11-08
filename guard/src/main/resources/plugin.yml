@@ -1,0 +1,33 @@
+name: Guard
+version: 0.1.0
+main: dev.guard.Guard
+api-version: '1.21'
+description: Lightweight movement and combat anticheat
+commands:
+  sus:
+    description: List and inspect suspicious players
+    usage: /sus [list | player | tp <player> | clear <player>]
+    permission: anticheat.alerts
+  alerts:
+    description: Toggle your anticheat alerts
+    permission: anticheat.alerts
+  freeze:
+    description: Freeze or unfreeze a player for a check
+    usage: /freeze <player>
+    permission: anticheat.manage
+  acstatus:
+    description: Show what the anticheat is doing and whether Paper's anti-xray is on
+    permission: anticheat.alerts
+permissions:
+  anticheat.alerts:
+    description: Receive anticheat alerts in chat
+    default: op
+  anticheat.bypass:
+    description: Exempt from all checks (for trusted staff)
+    default: false
+  anticheat.culling.bypass:
+    description: See every player (not hidden behind walls by the anti-ESP culling)
+    default: op
+  anticheat.manage:
+    description: Clear flags and freeze players
+    default: op

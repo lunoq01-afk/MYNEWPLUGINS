@@ -1,0 +1,15 @@
+# Merge into config/paper-world-defaults.yml (or a world's paper-world.yml).
+# Key names can change between Paper versions: check https://docs.papermc.io for your version.
+anticheat:
+  anti-xray:
+    enabled: true
+    # 1 = hide ores (replaced with stone-like blocks until exposed)
+    # 2 = hide ores AND scatter fake ores, so xray shows noise
+    engine-mode: 2
+    max-block-height: 64
+    update-radius: 2
+    lava-obscures: false
+    use-permission: false
+    # hidden-blocks / replacement-blocks: Paper's defaults already cover the common ores.
+    # Review the default list in the docs and add what you care about
+    # (e.g. ancient_debris and nether ores in a nether-specific world config).

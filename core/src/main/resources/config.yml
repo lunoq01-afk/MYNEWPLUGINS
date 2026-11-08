@@ -1,0 +1,77 @@
+homes:
+  default: 3                # extra homes: give a rank the permission core.homes.<number> (e.g. core.homes.8)
+
+tpa:
+  warmup-seconds: 3         # 0 = instant. Players must stand still.
+  expire-seconds: 60
+
+rtp:
+  cooldown-seconds: 30
+  overworld: { min: 300, max: 5000 }
+  nether: { min: 100, max: 1500 }
+  end: { min: 20, max: 90 }     # the main End island is small
+
+afk:
+  minutes: 5                # reward every N minutes spent in the AFK area
+  reward-command: "shards give %player% 1"   # console command; leave "" for none
+  # The AFK area is the warp named "afk": stand there and run /setwarp afk
+
+discord: "https://discord.gg/yourserver"
+
+rules:                      # each entry is one book page
+  - "&l&nServer Rules&r\n\n1. No cheating or hacked clients.\n2. No exploiting bugs.\n3. Be respectful in chat."
+  - "&l&nMore Rules&r\n\n4. No advertising.\n5. No scamming players.\n6. Staff decisions are final."
+
+# /offend <player> <reason> [duration]
+# type: ban | mute | kick     duration: 30m, 12h, 15d or perm
+offend:
+  reasons:
+    cheating:
+      type: ban
+      duration: 15d
+      message: "Unfair advantage (cheating)"
+    exploiting:
+      type: ban
+      duration: perm
+      message: "Exploiting a bug"
+    advertising:
+      type: ban
+      duration: 7d
+      message: "Advertising"
+    spam:
+      type: mute
+      duration: 1d
+      message: "Spamming chat"
+    toxicity:
+      type: mute
+      duration: 3d
+      message: "Toxic behavior"
+    warn:
+      type: kick
+      duration: 0
+      message: "Please follow the rules"
+  kick-screen:
+    - "&c&lYOU ARE BANNED"
+    - ""
+    - "&7Reason: &f%reason%"
+    - "&7Expires: &f%time%"
+    - ""
+    - "&7Ban ID: &f#%id%"
+
+team:
+  max-members: 8
+
+media:
+  title: "&dMedia Rank"
+  requirements:             # only one is needed
+    - "10 average viewers on a live stream"
+    - "50 average viewers on a TikTok live"
+    - "1,000 views on a YouTube video"
+    - "10,000 views on a TikTok, YouTube Short or Reel"
+  reminders:
+    - "The content has to be on Goldrush"
+    - "It lasts 60 days and comes with VIP perks"
+    - "Open a ticket on our Discord to apply"
+
+vanish:
+  fake-messages: true       # /vanish sends a fake "left the game" message (and a fake "joined" message when you return)

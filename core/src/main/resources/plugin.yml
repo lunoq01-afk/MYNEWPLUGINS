@@ -1,0 +1,137 @@
+name: Core
+version: 0.1.0
+main: dev.core.CorePlugin
+api-version: '1.21'
+description: Menu-based player commands, punishments and staff tools
+commands:
+  settings:
+    description: Open your settings menu
+  home:
+    description: Open your homes menu
+    usage: /home [number]
+  sethome:
+    description: Choose a home slot to set here
+    usage: /sethome [number]
+  delhome:
+    description: Choose a home to delete
+    usage: /delhome [number]
+  spawn:
+    description: Teleport to spawn
+  setspawn:
+    description: Set the spawn point
+    permission: core.admin
+  rtp:
+    description: Random teleport (opens a region menu)
+  tpa:
+    description: Request to teleport to a player
+    usage: /tpa [player]
+  tpahere:
+    description: Request a player to teleport to you
+    usage: /tpahere [player]
+  tpaccept:
+    description: View and accept teleport requests
+    aliases: [tpaaccept, tpyes]
+    usage: /tpaccept [player]
+  tpdeny:
+    description: Deny a teleport request
+    aliases: [tpadeny]
+    usage: /tpdeny [player]
+  warp:
+    description: Open the warps menu
+    usage: /warp [name]
+  setwarp:
+    description: Create a warp at your location (icon = item in hand)
+    usage: /setwarp <name>
+    permission: core.admin
+  delwarp:
+    description: Delete a warp
+    usage: /delwarp <name>
+    permission: core.admin
+  afk:
+    description: Go to the AFK area and back
+  msg:
+    description: Send a private message (opens a player menu)
+    aliases: [w, whisper, tell, pm]
+    usage: /msg [player] [message]
+  reply:
+    description: Reply to the last private message
+    aliases: [r]
+    usage: /reply <message>
+  ignore:
+    description: Ignore or unignore players (opens a player menu)
+    aliases: [block]
+    usage: /ignore [player]
+  togglechat:
+    description: Turn public chat on or off
+  nightvision:
+    description: Toggle night vision
+    aliases: [nv]
+  fly:
+    description: Toggle flight
+    permission: core.fly
+  rules:
+    description: Read the server rules
+  discord:
+    description: Get the Discord link
+  offend:
+    description: Punish a player using a configured reason
+    usage: /offend <player> <reason> [duration]
+    permission: core.offend
+  unoffend:
+    description: Remove a player's active ban/mute by name or ban ID
+    usage: /unoffend <player|id>
+    permission: core.offend
+  offends:
+    description: Menu of all active punishments
+    permission: core.offend
+  invsee:
+    description: View (and edit) a player's inventory
+    usage: /invsee [player]
+    permission: core.invsee
+  team:
+    description: Teams menu and commands
+    usage: /team [create|invite|accept|leave|kick|disband|sethome|home|chat|ff]
+  tc:
+    description: Team chat (toggle, or send a message)
+    aliases: [tchat, teamchat]
+    usage: /tc [message]
+  enderchest:
+    description: Open your 54-slot ender chest
+    aliases: [ec, echest]
+  media:
+    description: Media rank info
+  vanish:
+    description: Become invisible to players (sends a fake leave message)
+    aliases: [v]
+    permission: core.vanish
+permissions:
+  core.admin:
+    description: Manage warps and spawn
+    default: op
+  core.offend:
+    description: Use /offend, /unoffend and /offends
+    default: op
+  core.invsee:
+    description: Use /invsee (view only)
+    default: op
+  core.invsee.edit:
+    description: Edit inventories in /invsee
+    default: op
+  core.vanish:
+    description: Use /vanish
+    default: op
+  core.vanish.see:
+    description: See vanished staff
+    default: op
+  core.fly:
+    description: Use /fly
+    default: op
+  core.bypass:
+    description: Cannot be punished; ignores privacy settings
+    default: false
+  core.bypass.warmup:
+    description: No teleport warmup
+    default: op
+  core.bypass.cooldown:
+    description: No /rtp cooldown
+    default: op

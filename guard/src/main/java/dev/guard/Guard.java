@@ -1474,7 +1474,10 @@ entity-culling:
                 + (getConfig().getBoolean("detection.keybind-check.ban", true) ? "bans" : "alert only") + ")");
         say(s, "&7Banned client brands / channels: &f" + getConfig().getStringList("detection.brands").size()
                 + " &7/ &f" + getConfig().getStringList("detection.channels").size());
-        say(s, "&7Entity culling (anti-ESP, anti-radar, anti-freecam): "
+        say(s, "&7Remote-block / freecam heuristic: "
+                + (getConfig().getBoolean("anti-freecam.enabled", true) ? "&aON" : "&cOFF")
+                + " &7(limit " + getConfig().getDouble("anti-freecam.max-block-interaction-distance", 6.0) + " blocks; alerts only)");
+        say(s, "&7Player entity culling (anti-ESP/radar): "
                 + (getConfig().getBoolean("entity-culling.enabled", true) ? "&aON" : "&cOFF")
                 + " &7(" + getConfig().getInt("entity-culling.min-distance", 16) + "-"
                 + getConfig().getInt("entity-culling.max-distance", 80) + " blocks)");

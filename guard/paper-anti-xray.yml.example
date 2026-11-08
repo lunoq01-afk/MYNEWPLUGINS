@@ -1,0 +1,7 @@
+# Merge this section into config/paper-world-defaults.yml.
+# Keep the rest of your existing Paper configuration unchanged.
+anticheat:
+  anti-xray:
+    enabled: true
+    engine-mode: 2
+    use-permission: true
